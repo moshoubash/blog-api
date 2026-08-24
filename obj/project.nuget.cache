@@ -1,0 +1,12 @@
+{
+  "version": 2,
+  "dgSpecHash": "j/x8GhnBrGA=",
+  "success": true,
+  "projectFilePath": "/Users/mohammadshoubash/RiderProjects/DotnetAPI/DotnetAPI/DotnetAPI.csproj",
+  "expectedPackageFiles": [
+    "/Users/mohammadshoubash/.nuget/packages/microsoft.aspnetcore.openapi/10.0.11/microsoft.aspnetcore.openapi.10.0.11.nupkg.sha512",
+    "/Users/mohammadshoubash/.nuget/packages/microsoft.openapi/2.7.5/microsoft.openapi.2.7.5.nupkg.sha512",
+    "/Users/mohammadshoubash/.nuget/packages/scalar.aspnetcore/2.17.1/scalar.aspnetcore.2.17.1.nupkg.sha512"
+  ],
+  "logs": []
+}
