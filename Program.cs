@@ -3,6 +3,9 @@ using DotnetAPI.Repositories;
 using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.EntityFrameworkCore;
 using Scalar.AspNetCore;
+using Microsoft.IdentityModel.Tokens;
+using System.Text;
+using DotnetAPI.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -30,7 +33,7 @@ builder.Services.AddRateLimiter(options =>
             error = "Too Many Requests",
             message = "Rate limit exceeded. Please try again later."
         }, cancellationToken: cancellationToken);
-    };
+    };  
 
     options.AddFixedWindowLimiter("api", o =>
     {
@@ -39,6 +42,24 @@ builder.Services.AddRateLimiter(options =>
         o.QueueLimit = 0;
     });
 });
+
+builder.Services.AddAuthentication("Bearer")
+    .AddJwtBearer("Bearer", options =>
+    {
+        options.TokenValidationParameters = new TokenValidationParameters
+        {
+            ValidateIssuer = true,
+            ValidateAudience = true,
+            ValidateLifetime = true,
+            ValidateIssuerSigningKey = true,
+            ValidIssuer = builder.Configuration["ApiSettings:Issuer"],
+            ValidAudience = builder.Configuration["ApiSettings:Audience"],
+            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["ApiSettings:Secret"]))
+        };
+    });
+
+builder.Services.AddAuthorization();
+builder.Services.AddScoped<JwtTokenService>();
 
 
 var app = builder.Build();
@@ -49,6 +70,9 @@ if (app.Environment.IsDevelopment())
     app.MapOpenApi();
     app.MapScalarApiReference();
 }
+
+app.UseAuthentication();
+app.UseAuthorization();
 
 app.UseRateLimiter();
 app.MapControllers();

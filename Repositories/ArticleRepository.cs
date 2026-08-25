@@ -34,7 +34,9 @@ public class ArticleRepository : IArticleRepository
 
             return Task.FromResult<IEnumerable<Article>>(_dbContext.Articles
                 .AsNoTracking()
+                /*
                 .Where(a => a.CreatedAt.Date >= DateTime.Now.Date.AddDays(-7)) // articles older than 7 days
+                */
                 .OrderByDescending(a => a.CreatedAt)
                 .Skip((pageNumber - 1) * pageSize)
                 .Take(pageSize));

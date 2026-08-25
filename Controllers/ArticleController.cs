@@ -1,5 +1,6 @@
 using DotnetAPI.Models;
 using DotnetAPI.Repositories;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.RateLimiting;
@@ -19,6 +20,7 @@ public class ArticleController(IArticleRepository articleRepository)
     
     [HttpGet("page/{pageNumber:int}/{pageSize:int}")]
     [Route("articles")]
+    [Authorize(Roles = "Author")]
     public async Task<IEnumerable<Article>> GetArticles(int pageNumber, int pageSize)
     {
         return await articleRepository.GetArticles(pageNumber, pageSize);

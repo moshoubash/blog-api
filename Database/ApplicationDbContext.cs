@@ -35,8 +35,7 @@ public class ApplicationDbContext : DbContext
         
         // SEEDING
         builder.Entity<Role>().HasData(
-            new Role { Id = 1, Name = "Admin" }, 
-            new Role { Id = 2, Name = "User" }
+            new Role { Id = 1, Name = "Author" }
         );
         
         builder.Entity<User>().HasData(
@@ -44,6 +43,8 @@ public class ApplicationDbContext : DbContext
             {
                 Id = 1,
                 Name = "Author",
+                Username = "author",
+                Password = "12341234",
                 RoleId = 1,
                 CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, DateTimeKind.Utc)
             }
