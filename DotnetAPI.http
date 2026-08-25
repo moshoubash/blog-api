@@ -1,6 +1,12 @@
 @DotnetAPI_HostAddress = http://localhost:5023
 
-GET {{DotnetAPI_HostAddress}}/weatherforecast/
+###
+GET {{DotnetAPI_HostAddress}}/api/Article/articles
+Accept: application/json
+
+
+###
+GET {{DotnetAPI_HostAddress}}/api/Article/page/1/10
 Accept: application/json
 
 ###
