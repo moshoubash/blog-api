@@ -1,7 +1,6 @@
 using DotnetAPI.Models;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
 namespace DotnetAPI.Database;
 
@@ -33,6 +32,28 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> dbConte
         builder.Entity<Article>()
             .Property(a => a.Slug)
             .HasComputedColumnSql("LOWER(REPLACE(Title, ' ', '-'))", stored: true);
+
+        builder.Entity<ArticleCategory>().HasKey(item => new { item.ArticleId, item.CategoryId });
+        builder.Entity<ArticleCategory>()
+            .HasOne(item => item.Article).WithMany(item => item.ArticleCategories).HasForeignKey(item => item.ArticleId);
+        builder.Entity<ArticleCategory>()
+            .HasOne(item => item.Category).WithMany(item => item.ArticleCategories).HasForeignKey(item => item.CategoryId);
+
+        builder.Entity<ArticleTag>().HasKey(item => new { item.ArticleId, item.TagId });
+        builder.Entity<ArticleTag>()
+            .HasOne(item => item.Article).WithMany(item => item.ArticleTags).HasForeignKey(item => item.ArticleId);
+        builder.Entity<ArticleTag>()
+            .HasOne(item => item.Tag).WithMany(item => item.ArticleTags).HasForeignKey(item => item.TagId);
+
+        builder.Entity<Comment>()
+            .HasOne(item => item.Article).WithMany(item => item.Comments).HasForeignKey(item => item.ArticleId)
+            .OnDelete(DeleteBehavior.Cascade);
+        builder.Entity<Comment>()
+            .HasOne(item => item.User).WithMany(item => item.Comments).HasForeignKey(item => item.UserId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        builder.Entity<Category>().HasIndex(item => item.Slug).IsUnique();
+        builder.Entity<Tag>().HasIndex(item => item.Slug).IsUnique();
         
         // SEEDING
         builder.Entity<Role>().HasData(
@@ -52,13 +73,18 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> dbConte
         );
 
         builder.Entity<Article>().HasData(
-            new Article { Id = 1, Title = "First Article", UserId = 1, CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, DateTimeKind.Utc) },
-            new Article { Id = 2, Title = "Second Article", UserId = 1, CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, DateTimeKind.Utc) },
-            new Article { Id = 3, Title = "Third Article", UserId = 1, CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, DateTimeKind.Utc) }
+            new Article { Id = 1, Title = "First Article", Content = "Welcome to the first article.", UserId = 1, CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, DateTimeKind.Utc), PublishedAt = new DateTime(2026, 1, 1, 0, 0, 0, DateTimeKind.Utc), IsPublished = true },
+            new Article { Id = 2, Title = "Second Article", Content = "This is the second article.", UserId = 1, CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, DateTimeKind.Utc), PublishedAt = new DateTime(2026, 1, 1, 0, 0, 0, DateTimeKind.Utc), IsPublished = true },
+            new Article { Id = 3, Title = "Third Article", Content = "This is the third article.", UserId = 1, CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, DateTimeKind.Utc), PublishedAt = new DateTime(2026, 1, 1, 0, 0, 0, DateTimeKind.Utc), IsPublished = true }
         );
     }
 
     public DbSet<Article> Articles { get; set; }
     public DbSet<User> Users { get; set; }
     public DbSet<Role> Roles { get; set; }
+    public DbSet<Category> Categories { get; set; }
+    public DbSet<Tag> Tags { get; set; }
+    public DbSet<ArticleCategory> ArticleCategories { get; set; }
+    public DbSet<ArticleTag> ArticleTags { get; set; }
+    public DbSet<Comment> Comments { get; set; }
 }

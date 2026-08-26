@@ -30,7 +30,21 @@ namespace DotnetAPI.Migrations
 
                     MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("Id"));
 
+                    b.Property<string>("Content")
+                        .IsRequired()
+                        .HasColumnType("longtext");
+
                     b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<string>("Excerpt")
+                        .HasMaxLength(500)
+                        .HasColumnType("varchar(500)");
+
+                    b.Property<bool>("IsPublished")
+                        .HasColumnType("tinyint(1)");
+
+                    b.Property<DateTime?>("PublishedAt")
                         .HasColumnType("datetime(6)");
 
                     b.Property<string>("Slug")
@@ -51,30 +65,129 @@ namespace DotnetAPI.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("Articles");
+                    b.ToTable("Articles", (string)null);
 
                     b.HasData(
                         new
                         {
                             Id = 1,
+                            Content = "Welcome to the first article.",
                             CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            IsPublished = true,
+                            PublishedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             Title = "First Article",
                             UserId = 1
                         },
                         new
                         {
                             Id = 2,
+                            Content = "This is the second article.",
                             CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            IsPublished = true,
+                            PublishedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             Title = "Second Article",
                             UserId = 1
                         },
                         new
                         {
                             Id = 3,
+                            Content = "This is the third article.",
                             CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            IsPublished = true,
+                            PublishedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             Title = "Third Article",
                             UserId = 1
                         });
+                });
+
+            modelBuilder.Entity("DotnetAPI.Models.ArticleCategory", b =>
+                {
+                    b.Property<int>("ArticleId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("CategoryId")
+                        .HasColumnType("int");
+
+                    b.HasKey("ArticleId", "CategoryId");
+
+                    b.HasIndex("CategoryId");
+
+                    b.ToTable("ArticleCategories", (string)null);
+                });
+
+            modelBuilder.Entity("DotnetAPI.Models.ArticleTag", b =>
+                {
+                    b.Property<int>("ArticleId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("TagId")
+                        .HasColumnType("int");
+
+                    b.HasKey("ArticleId", "TagId");
+
+                    b.HasIndex("TagId");
+
+                    b.ToTable("ArticleTags", (string)null);
+                });
+
+            modelBuilder.Entity("DotnetAPI.Models.Category", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("varchar(100)");
+
+                    b.Property<string>("Slug")
+                        .IsRequired()
+                        .HasMaxLength(120)
+                        .HasColumnType("varchar(120)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Slug")
+                        .IsUnique();
+
+                    b.ToTable("Categories", (string)null);
+                });
+
+            modelBuilder.Entity("DotnetAPI.Models.Comment", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("ArticleId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Content")
+                        .IsRequired()
+                        .HasMaxLength(2000)
+                        .HasColumnType("varchar(2000)");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<bool>("IsApproved")
+                        .HasColumnType("tinyint(1)");
+
+                    b.Property<int>("UserId")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ArticleId");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("Comments", (string)null);
                 });
 
             modelBuilder.Entity("DotnetAPI.Models.Role", b =>
@@ -92,7 +205,7 @@ namespace DotnetAPI.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Roles");
+                    b.ToTable("Roles", (string)null);
 
                     b.HasData(
                         new
@@ -100,6 +213,32 @@ namespace DotnetAPI.Migrations
                             Id = 1,
                             Name = "Author"
                         });
+                });
+
+            modelBuilder.Entity("DotnetAPI.Models.Tag", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("varchar(50)");
+
+                    b.Property<string>("Slug")
+                        .IsRequired()
+                        .HasMaxLength(70)
+                        .HasColumnType("varchar(70)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Slug")
+                        .IsUnique();
+
+                    b.ToTable("Tags", (string)null);
                 });
 
             modelBuilder.Entity("DotnetAPI.Models.User", b =>
@@ -135,7 +274,7 @@ namespace DotnetAPI.Migrations
 
                     b.HasIndex("RoleId");
 
-                    b.ToTable("Users");
+                    b.ToTable("Users", (string)null);
 
                     b.HasData(
                         new
@@ -160,6 +299,63 @@ namespace DotnetAPI.Migrations
                     b.Navigation("User");
                 });
 
+            modelBuilder.Entity("DotnetAPI.Models.ArticleCategory", b =>
+                {
+                    b.HasOne("DotnetAPI.Models.Article", "Article")
+                        .WithMany("ArticleCategories")
+                        .HasForeignKey("ArticleId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("DotnetAPI.Models.Category", "Category")
+                        .WithMany("ArticleCategories")
+                        .HasForeignKey("CategoryId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Article");
+
+                    b.Navigation("Category");
+                });
+
+            modelBuilder.Entity("DotnetAPI.Models.ArticleTag", b =>
+                {
+                    b.HasOne("DotnetAPI.Models.Article", "Article")
+                        .WithMany("ArticleTags")
+                        .HasForeignKey("ArticleId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("DotnetAPI.Models.Tag", "Tag")
+                        .WithMany("ArticleTags")
+                        .HasForeignKey("TagId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Article");
+
+                    b.Navigation("Tag");
+                });
+
+            modelBuilder.Entity("DotnetAPI.Models.Comment", b =>
+                {
+                    b.HasOne("DotnetAPI.Models.Article", "Article")
+                        .WithMany("Comments")
+                        .HasForeignKey("ArticleId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("DotnetAPI.Models.User", "User")
+                        .WithMany("Comments")
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Article");
+
+                    b.Navigation("User");
+                });
+
             modelBuilder.Entity("DotnetAPI.Models.User", b =>
                 {
                     b.HasOne("DotnetAPI.Models.Role", "Role")
@@ -171,14 +367,35 @@ namespace DotnetAPI.Migrations
                     b.Navigation("Role");
                 });
 
+            modelBuilder.Entity("DotnetAPI.Models.Article", b =>
+                {
+                    b.Navigation("ArticleCategories");
+
+                    b.Navigation("ArticleTags");
+
+                    b.Navigation("Comments");
+                });
+
+            modelBuilder.Entity("DotnetAPI.Models.Category", b =>
+                {
+                    b.Navigation("ArticleCategories");
+                });
+
             modelBuilder.Entity("DotnetAPI.Models.Role", b =>
                 {
                     b.Navigation("Users");
                 });
 
+            modelBuilder.Entity("DotnetAPI.Models.Tag", b =>
+                {
+                    b.Navigation("ArticleTags");
+                });
+
             modelBuilder.Entity("DotnetAPI.Models.User", b =>
                 {
                     b.Navigation("Articles");
+
+                    b.Navigation("Comments");
                 });
 #pragma warning restore 612, 618
         }

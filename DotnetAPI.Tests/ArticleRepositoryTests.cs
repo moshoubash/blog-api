@@ -15,12 +15,12 @@ public sealed class ArticleRepositoryTests
         await using var dbContext = CreateDbContext();
         SeedUsers(dbContext);
         dbContext.Articles.AddRange(
-            new Article { Id = 1, Title = "Oldest", UserId = 1, CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, DateTimeKind.Utc) },
-            new Article { Id = 2, Title = "Middle", UserId = 1, CreatedAt = new DateTime(2026, 1, 2, 0, 0, 0, DateTimeKind.Utc) },
-            new Article { Id = 3, Title = "Newest", UserId = 1, CreatedAt = new DateTime(2026, 1, 3, 0, 0, 0, DateTimeKind.Utc) });
+            new Article { Id = 1, Title = "Oldest", Content = "Oldest content", UserId = 1, IsPublished = true, CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, DateTimeKind.Utc) },
+            new Article { Id = 2, Title = "Middle", Content = "Middle content", UserId = 1, IsPublished = true, CreatedAt = new DateTime(2026, 1, 2, 0, 0, 0, DateTimeKind.Utc) },
+            new Article { Id = 3, Title = "Newest", Content = "Newest content", UserId = 1, IsPublished = true, CreatedAt = new DateTime(2026, 1, 3, 0, 0, 0, DateTimeKind.Utc) });
         await dbContext.SaveChangesAsync();
 
-        var result = await new ArticleRepository(dbContext).GetArticlesAsync(2, 2, CancellationToken.None);
+        var result = await new ArticleRepository(dbContext).GetArticlesAsync(2, 2, null, null, null, CancellationToken.None);
 
         Assert.Equal(3, result.TotalItems);
         Assert.Equal(2, result.TotalPages);
@@ -35,7 +35,7 @@ public sealed class ArticleRepositoryTests
         await dbContext.SaveChangesAsync();
 
         var result = await new ArticleRepository(dbContext)
-            .CreateArticleAsync(new CreateArticle { Title = "  New article  " }, 2, CancellationToken.None);
+            .CreateArticleAsync(new CreateArticle { Title = "  New article  ", Content = "Article content", IsPublished = true }, 2, CancellationToken.None);
 
         Assert.Equal("New article", result.Title);
         Assert.Equal(2, result.AuthorId);
@@ -47,13 +47,13 @@ public sealed class ArticleRepositoryTests
     {
         await using var dbContext = CreateDbContext();
         SeedUsers(dbContext);
-        dbContext.Articles.Add(new Article { Id = 1, Title = "Protected", UserId = 1 });
+        dbContext.Articles.Add(new Article { Id = 1, Title = "Protected", Content = "Protected content", UserId = 1, IsPublished = true });
         await dbContext.SaveChangesAsync();
         var repository = new ArticleRepository(dbContext);
 
         var updated = await repository.UpdateArticleAsync(
             1,
-            new EditArticle { Title = "Changed" },
+            new EditArticle { Title = "Changed", Content = "Changed content" },
             2,
             CancellationToken.None);
         var deleted = await repository.DeleteArticleAsync(1, 2, CancellationToken.None);
@@ -61,6 +61,22 @@ public sealed class ArticleRepositoryTests
         Assert.Null(updated);
         Assert.False(deleted);
         Assert.Equal("Protected", (await dbContext.Articles.SingleAsync()).Title);
+    }
+
+    [Fact]
+    public async Task GetArticlesAsync_DoesNotReturnDrafts()
+    {
+        await using var dbContext = CreateDbContext();
+        SeedUsers(dbContext);
+        dbContext.Articles.AddRange(
+            new Article { Id = 1, Title = "Published", Content = "Visible", UserId = 1, IsPublished = true },
+            new Article { Id = 2, Title = "Draft", Content = "Hidden", UserId = 1, IsPublished = false });
+        await dbContext.SaveChangesAsync();
+
+        var result = await new ArticleRepository(dbContext)
+            .GetArticlesAsync(1, 10, null, null, null, CancellationToken.None);
+
+        Assert.Equal("Published", Assert.Single(result.Items).Title);
     }
 
     private static ApplicationDbContext CreateDbContext()

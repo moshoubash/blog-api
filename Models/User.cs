@@ -21,6 +21,8 @@ public class User
     public DateTime CreatedAt { get; set; } = DateTime.Now; 
     
     public ICollection<Article> Articles { get; set; } = new List<Article>();
+
+    public ICollection<Comment> Comments { get; set; } = new List<Comment>();
     
     public int RoleId { get; set; }
     public Role? Role { get; set; }

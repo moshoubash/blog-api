@@ -10,3 +10,13 @@ GET {{DotnetAPI_HostAddress}}/api/articles/1
 Accept: application/json
 
 ###
+GET {{DotnetAPI_HostAddress}}/api/categories
+Accept: application/json
+
+###
+GET {{DotnetAPI_HostAddress}}/api/tags
+Accept: application/json
+
+###
+GET {{DotnetAPI_HostAddress}}/api/articles/1/comments
+Accept: application/json

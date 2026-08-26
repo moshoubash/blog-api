@@ -15,15 +15,26 @@ public sealed class ArticleController(IArticleRepository articleRepository) : Co
 {
     [HttpGet]
     [ProducesResponseType<PagedResponse<ArticleResponse>>(StatusCodes.Status200OK)]
-    [Authorize(Roles = "Author,Reader")]
     public Task<PagedResponse<ArticleResponse>> GetArticles(
         [FromQuery] int page = 1,
         [FromQuery] int pageSize = 10,
+        [FromQuery] string? search = null,
+        [FromQuery] string? category = null,
+        [FromQuery] string? tag = null,
         CancellationToken cancellationToken = default)
     {
         page = Math.Max(page, 1);
         pageSize = Math.Clamp(pageSize, 1, 100);
-        return articleRepository.GetArticlesAsync(page, pageSize, cancellationToken);
+        return articleRepository.GetArticlesAsync(page, pageSize, search, category, tag, cancellationToken);
+    }
+
+    [HttpGet("slug/{slug}")]
+    public async Task<ActionResult<ArticleResponse>> GetArticleBySlug(string slug, CancellationToken cancellationToken)
+    {
+        var article = await articleRepository.GetArticleBySlugAsync(slug, cancellationToken);
+        return article is null
+            ? Problem(statusCode: StatusCodes.Status404NotFound, detail: "Article not found.")
+            : Ok(article);
     }
 
     [HttpGet("{id:int}")]
@@ -44,8 +55,15 @@ public sealed class ArticleController(IArticleRepository articleRepository) : Co
         CreateArticle request,
         CancellationToken cancellationToken)
     {
-        var article = await articleRepository.CreateArticleAsync(request, GetUserId(), cancellationToken);
-        return CreatedAtAction(nameof(GetArticle), new { id = article.Id }, article);
+        try
+        {
+            var article = await articleRepository.CreateArticleAsync(request, GetUserId(), cancellationToken);
+            return CreatedAtAction(nameof(GetArticle), new { id = article.Id }, article);
+        }
+        catch (ArgumentException exception)
+        {
+            return BadRequest(new { message = exception.Message });
+        }
     }
 
     [HttpPut("{id:int}")]
@@ -57,10 +75,17 @@ public sealed class ArticleController(IArticleRepository articleRepository) : Co
         EditArticle request,
         CancellationToken cancellationToken)
     {
-        var article = await articleRepository.UpdateArticleAsync(id, request, GetUserId(), cancellationToken);
-        return article is null
-            ? Problem(statusCode: StatusCodes.Status404NotFound, detail: "Article not found or is not owned by the current user.")
-            : Ok(article);
+        try
+        {
+            var article = await articleRepository.UpdateArticleAsync(id, request, GetUserId(), cancellationToken);
+            return article is null
+                ? Problem(statusCode: StatusCodes.Status404NotFound, detail: "Article not found or is not owned by the current user.")
+                : Ok(article);
+        }
+        catch (ArgumentException exception)
+        {
+            return BadRequest(new { message = exception.Message });
+        }
     }
 
     [HttpDelete("{id:int}")]

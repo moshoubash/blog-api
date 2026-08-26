@@ -35,7 +35,12 @@ public sealed class UserController(ApplicationDbContext dbContext) : ControllerB
             .AsNoTracking()
             .Where(article => article.UserId == userId)
             .OrderByDescending(article => article.CreatedAt)
-            .Select(article => new ArticleResponse(article.Id, article.Title, article.Slug, article.CreatedAt, article.UserId, article.User!.Name))
+            .Select(article => new ArticleResponse(
+                article.Id, article.Title, article.Slug, article.Content, article.Excerpt,
+                article.CreatedAt, article.PublishedAt, article.IsPublished, article.UserId,
+                article.User!.Name,
+                article.ArticleCategories.Select(item => item.Category.Name).ToList(),
+                article.ArticleTags.Select(item => item.Tag.Name).ToList()))
             .ToListAsync(cancellationToken);
 
         return Ok(articles);
