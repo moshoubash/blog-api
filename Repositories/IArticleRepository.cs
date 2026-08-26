@@ -1,16 +1,13 @@
-using DotnetAPI.Models;
+using DotnetAPI.Dtos.Article;
+using DotnetAPI.Dtos.Common;
 
 namespace DotnetAPI.Repositories;
 
 public interface IArticleRepository
 {
-    public Article GetArticle(int id);
-    
-    public Task<IEnumerable<Article>> GetArticles(int pageNumber, int pageSize);
-    
-    public Task<object> CreateArticle(Dtos.Article.CreateArticle createArticle);
-    
-    public Task<object> UpdateArticle(Dtos.Article.EditArticle article);
-    
-    public Task<object> DeleteArticle(Dtos.Article.DeleteArticle deleteArticle);
+    Task<ArticleResponse?> GetArticleAsync(int id, CancellationToken cancellationToken);
+    Task<PagedResponse<ArticleResponse>> GetArticlesAsync(int page, int pageSize, CancellationToken cancellationToken);
+    Task<ArticleResponse> CreateArticleAsync(CreateArticle request, int userId, CancellationToken cancellationToken);
+    Task<ArticleResponse?> UpdateArticleAsync(int id, EditArticle request, int userId, CancellationToken cancellationToken);
+    Task<bool> DeleteArticleAsync(int id, int userId, CancellationToken cancellationToken);
 }

@@ -1,109 +1,107 @@
-using System.Text.Json;
-using System.Text.Json.Nodes;
 using DotnetAPI.Database;
+using DotnetAPI.Dtos.Article;
+using DotnetAPI.Dtos.Common;
 using DotnetAPI.Models;
-using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.EntityFrameworkCore;
 
 namespace DotnetAPI.Repositories;
 
-public class ArticleRepository : IArticleRepository
+public sealed class ArticleRepository(ApplicationDbContext dbContext) : IArticleRepository
 {
-    protected readonly ApplicationDbContext _dbContext;
-
-    public ArticleRepository(ApplicationDbContext dbContext)
+    public Task<ArticleResponse?> GetArticleAsync(int id, CancellationToken cancellationToken)
     {
-        _dbContext = dbContext;
-    }
-    
-    public Article GetArticle(int id)
-    {
-        var targetarticle = _dbContext.Articles.FirstOrDefault(a => a.Id == id);
-        if (targetarticle == null)
-            throw new Exception("Article not found");
-        
-        return targetarticle;
+        return dbContext.Articles
+            .AsNoTracking()
+            .Where(article => article.Id == id)
+            .Select(article => new ArticleResponse(
+                article.Id,
+                article.Title,
+                article.CreatedAt,
+                article.UserId,
+                article.User!.Name))
+            .SingleOrDefaultAsync(cancellationToken);
     }
 
-    public Task<IEnumerable<Article>> GetArticles(int pageNumber, int pageSize)
+    public async Task<PagedResponse<ArticleResponse>> GetArticlesAsync(
+        int page,
+        int pageSize,
+        CancellationToken cancellationToken)
     {
-        try
-        {
-            if (!_dbContext.Articles.Any())
-                throw new Exception("No articles found");
+        var query = dbContext.Articles.AsNoTracking();
+        var totalItems = await query.CountAsync(cancellationToken);
+        var items = await query
+            .OrderByDescending(article => article.CreatedAt)
+            .ThenByDescending(article => article.Id)
+            .Skip((page - 1) * pageSize)
+            .Take(pageSize)
+            .Select(article => new ArticleResponse(
+                article.Id,
+                article.Title,
+                article.CreatedAt,
+                article.UserId,
+                article.User!.Name))
+            .ToListAsync(cancellationToken);
 
-            return Task.FromResult<IEnumerable<Article>>(_dbContext.Articles
-                .AsNoTracking()
-                /*
-                .Where(a => a.CreatedAt.Date >= DateTime.Now.Date.AddDays(-7)) // articles older than 7 days
-                */
-                .OrderByDescending(a => a.CreatedAt)
-                .Skip((pageNumber - 1) * pageSize)
-                .Take(pageSize));
-        }
-        catch (Exception exception)
-        {
-            return Task.FromException<IEnumerable<Article>>(exception);
-        }
+        var totalPages = (int)Math.Ceiling(totalItems / (double)pageSize);
+        return new PagedResponse<ArticleResponse>(items, page, pageSize, totalItems, totalPages);
     }
 
-    public async Task<object> CreateArticle(Dtos.Article.CreateArticle createArticle)
+    public async Task<ArticleResponse> CreateArticleAsync(
+        CreateArticle request,
+        int userId,
+        CancellationToken cancellationToken)
     {
-        try
+        var article = new Article
         {
-            await _dbContext.Articles.AddAsync(new Article
-            {
-                Title = createArticle.Title,
-                CreatedAt = DateTime.Now,
-                UserId = 1
-            });
+            Title = request.Title.Trim(),
+            CreatedAt = DateTime.UtcNow,
+            UserId = userId
+        };
 
-            await _dbContext.SaveChangesAsync();
-            return new { message = "article was added" };
-        }
-        catch (Exception e)
-        {
-            return new { error = e.Message };
-        }
+        dbContext.Articles.Add(article);
+        await dbContext.SaveChangesAsync(cancellationToken);
+
+        var authorName = await dbContext.Users
+            .Where(user => user.Id == userId)
+            .Select(user => user.Name)
+            .SingleAsync(cancellationToken);
+
+        return new ArticleResponse(article.Id, article.Title, article.CreatedAt, userId, authorName);
     }
 
-    public async Task<object> UpdateArticle(Dtos.Article.EditArticle article)
+    public async Task<ArticleResponse?> UpdateArticleAsync(
+        int id,
+        EditArticle request,
+        int userId,
+        CancellationToken cancellationToken)
     {
-        try
+        var article = await dbContext.Articles
+            .Include(item => item.User)
+            .SingleOrDefaultAsync(item => item.Id == id && item.UserId == userId, cancellationToken);
+
+        if (article is null)
         {
-            var targetarticle = await _dbContext.Articles.FirstOrDefaultAsync(a => a.Id == article.Id);
-            
-            if (targetarticle == null)
-            {
-                return new { error = "Article not found" };
-            }
-
-            targetarticle.Title = article.Title;
-
-            _dbContext.Articles.Update(targetarticle);
-            await _dbContext.SaveChangesAsync();
-
-            return new
-            {
-                message = targetarticle
-            };
+            return null;
         }
-        catch (Exception e)
-        {
-            return new { error = e.Message };
-        }
+
+        article.Title = request.Title.Trim();
+        await dbContext.SaveChangesAsync(cancellationToken);
+
+        return new ArticleResponse(article.Id, article.Title, article.CreatedAt, article.UserId, article.User!.Name);
     }
 
-    public Task<object> DeleteArticle(Dtos.Article.DeleteArticle deleteArticle)
+    public async Task<bool> DeleteArticleAsync(int id, int userId, CancellationToken cancellationToken)
     {
-        var targetArticle = _dbContext.Articles.FirstOrDefault(a => a.Id == deleteArticle.Id);
-        
-        if(targetArticle == null)
-            throw new Exception("Article not found");       
-        
-        _dbContext.Articles.Remove(targetArticle);
-        _dbContext.SaveChanges();
+        var article = await dbContext.Articles
+            .SingleOrDefaultAsync(item => item.Id == id && item.UserId == userId, cancellationToken);
 
-       return Task.FromResult<object>(new { message = "Article was deleted" });
+        if (article is null)
+        {
+            return false;
+        }
+
+        dbContext.Articles.Remove(article);
+        await dbContext.SaveChangesAsync(cancellationToken);
+        return true;
     }
 }

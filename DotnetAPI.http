@@ -1,12 +1,12 @@
 @DotnetAPI_HostAddress = http://localhost:5023
 
 ###
-GET {{DotnetAPI_HostAddress}}/api/Article/articles
+GET {{DotnetAPI_HostAddress}}/api/articles?page=1&pageSize=10
 Accept: application/json
 
 
 ###
-GET {{DotnetAPI_HostAddress}}/api/Article/page/1/10
+GET {{DotnetAPI_HostAddress}}/api/articles/1
 Accept: application/json
 
 ###

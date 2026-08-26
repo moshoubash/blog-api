@@ -1,7 +1,9 @@
+using System.ComponentModel.DataAnnotations;
+
 namespace DotnetAPI.Dtos.Article;
 
-public class EditArticle
+public sealed class EditArticle
 {
-    public int Id { get; set; }
-    public string Title { get; set; }
+    [Required, StringLength(200, MinimumLength = 2)]
+    public string Title { get; init; } = string.Empty;
 }

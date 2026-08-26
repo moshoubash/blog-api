@@ -1,7 +1,12 @@
+using System.ComponentModel.DataAnnotations;
+
 namespace DotnetAPI.Dtos.Authentication;
 
-public class LoginRequest
+public sealed class LoginRequest
 {
-    public string Username { get; set; }
-    public string Password { get; set; }
+    [Required]
+    public string Username { get; init; } = string.Empty;
+
+    [Required]
+    public string Password { get; init; } = string.Empty;
 }

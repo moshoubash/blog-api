@@ -1,6 +1,9 @@
+using System.ComponentModel.DataAnnotations;
+
 namespace DotnetAPI.Dtos.Article;
 
-public class CreateArticle
+public sealed class CreateArticle
 {
-    public string Title { get; set; }
+    [Required, StringLength(200, MinimumLength = 2)]
+    public string Title { get; init; } = string.Empty;
 }

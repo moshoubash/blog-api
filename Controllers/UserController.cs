@@ -1,43 +1,45 @@
+using System.Security.Claims;
 using DotnetAPI.Database;
-using DotnetAPI.Models;
-using DotnetAPI.Repositories;
+using DotnetAPI.Dtos.Article;
+using DotnetAPI.Dtos.Authentication;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.EntityFrameworkCore;
 
 namespace DotnetAPI.Controllers;
 
 [ApiController]
-[Route("api/[controller]")]
-[EnableRateLimiting("api")]
-public class UserController(ApplicationDbContext dbContext)
+[Route("api/users")]
+[Authorize]
+public sealed class UserController(ApplicationDbContext dbContext) : ControllerBase
 {
-    [HttpGet("{id:int}")]
-    public List<Article> GetUserArticles(int id)
+    [HttpGet("me")]
+    public async Task<ActionResult<UserResponse>> GetCurrentUser(CancellationToken cancellationToken)
     {
-        return dbContext.Articles.Where(a => a.UserId == id).ToList();
-    }
-    
-    [HttpPost]
-    public object CreateTempUser()
-    {
-        var user = dbContext.Users.Add(new User { Name = "Test User", RoleId = 1 });
-        
-        dbContext.SaveChanges();
-        
-        return new
-        {
-            message = "User was created",
-            user
-        };
+        var userId = GetUserId();
+        var user = await dbContext.Users
+            .AsNoTracking()
+            .Include(item => item.Role)
+            .SingleOrDefaultAsync(item => item.Id == userId, cancellationToken);
+
+        return user is null
+            ? Problem(statusCode: StatusCodes.Status404NotFound, detail: "User not found.")
+            : Ok(new UserResponse(user.Id, user.Name, user.Username, user.Role?.Name ?? string.Empty, user.CreatedAt));
     }
 
-    [HttpGet("{id:int}/role")]
-    public string GetUserRole(int id)
+    [HttpGet("me/articles")]
+    public async Task<ActionResult<IReadOnlyList<ArticleResponse>>> GetCurrentUserArticles(CancellationToken cancellationToken)
     {
-        return dbContext.Users
-            .Where(u => u.Id == id)
-            .Select(u => u.Role.Name)
-            .FirstOrDefault();
+        var userId = GetUserId();
+        var articles = await dbContext.Articles
+            .AsNoTracking()
+            .Where(article => article.UserId == userId)
+            .OrderByDescending(article => article.CreatedAt)
+            .Select(article => new ArticleResponse(article.Id, article.Title, article.CreatedAt, article.UserId, article.User!.Name))
+            .ToListAsync(cancellationToken);
+
+        return Ok(articles);
     }
+
+    private int GetUserId() => int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
 }

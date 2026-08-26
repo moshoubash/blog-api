@@ -132,3 +132,14 @@
 /Users/mohammadshoubash/RiderProjects/DotnetAPI/DotnetAPI/bin/Debug/net10.0/Microsoft.IdentityModel.Protocols.OpenIdConnect.dll
 /Users/mohammadshoubash/RiderProjects/DotnetAPI/DotnetAPI/bin/Debug/net10.0/Microsoft.IdentityModel.Tokens.dll
 /Users/mohammadshoubash/RiderProjects/DotnetAPI/DotnetAPI/bin/Debug/net10.0/System.IdentityModel.Tokens.Jwt.dll
+/Users/mohammadshoubash/RiderProjects/DotnetAPI/DotnetAPI/bin/Debug/net10.0/DotnetAPI.Tests/obj/DotnetAPI.Tests.csproj.nuget.dgspec.json
+/Users/mohammadshoubash/RiderProjects/DotnetAPI/DotnetAPI/bin/Debug/net10.0/DotnetAPI.Tests/obj/project.assets.json
+/Users/mohammadshoubash/RiderProjects/DotnetAPI/DotnetAPI/bin/Debug/net10.0/DotnetAPI.Tests/bin/Debug/net10.0/appsettings.Development.json
+/Users/mohammadshoubash/RiderProjects/DotnetAPI/DotnetAPI/bin/Debug/net10.0/DotnetAPI.Tests/bin/Debug/net10.0/appsettings.json
+/Users/mohammadshoubash/RiderProjects/DotnetAPI/DotnetAPI/bin/Debug/net10.0/DotnetAPI.Tests/bin/Debug/net10.0/DotnetAPI.deps.json
+/Users/mohammadshoubash/RiderProjects/DotnetAPI/DotnetAPI/bin/Debug/net10.0/DotnetAPI.Tests/bin/Debug/net10.0/DotnetAPI.runtimeconfig.json
+/Users/mohammadshoubash/RiderProjects/DotnetAPI/DotnetAPI/bin/Debug/net10.0/DotnetAPI.Tests/bin/Debug/net10.0/DotnetAPI.staticwebassets.endpoints.json
+/Users/mohammadshoubash/RiderProjects/DotnetAPI/DotnetAPI/bin/Debug/net10.0/DotnetAPI.Tests/bin/Debug/net10.0/DotnetAPI.Tests.deps.json
+/Users/mohammadshoubash/RiderProjects/DotnetAPI/DotnetAPI/bin/Debug/net10.0/DotnetAPI.Tests/bin/Debug/net10.0/DotnetAPI.Tests.runtimeconfig.json
+/Users/mohammadshoubash/RiderProjects/DotnetAPI/DotnetAPI/bin/Debug/net10.0/DotnetAPI.Tests/bin/Debug/net10.0/DotnetAPI.Tests/obj/DotnetAPI.Tests.csproj.nuget.dgspec.json
+/Users/mohammadshoubash/RiderProjects/DotnetAPI/DotnetAPI/bin/Debug/net10.0/DotnetAPI.Tests/bin/Debug/net10.0/DotnetAPI.Tests/obj/project.assets.json

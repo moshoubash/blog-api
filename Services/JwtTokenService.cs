@@ -9,37 +9,40 @@ using System.Text;
 
 public class JwtTokenService
 {
-    private readonly IConfiguration _config;
     private readonly string _secretKey;
+    private readonly string _issuer;
+    private readonly string _audience;
     private readonly int _accessTokenExpiryMinutes;
 
     public JwtTokenService(IConfiguration config)
     {
-        _config = config;
-        _secretKey = config["ApiSettings:Secret"];
+        _secretKey = config["ApiSettings:Secret"] ?? throw new InvalidOperationException("ApiSettings:Secret is required.");
+        _issuer = config["ApiSettings:Issuer"] ?? throw new InvalidOperationException("ApiSettings:Issuer is required.");
+        _audience = config["ApiSettings:Audience"] ?? throw new InvalidOperationException("ApiSettings:Audience is required.");
         _accessTokenExpiryMinutes = config.GetValue<int>("ApiSettings:AccessTokenExpiryMinutes", 60);
     }
 
-    public string GenerateToken(User user)
+    public (string Token, DateTime ExpiresAt) GenerateToken(User user)
     {
+        var expiresAt = DateTime.UtcNow.AddMinutes(_accessTokenExpiryMinutes);
         var claims = new[]
         {
             new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
             new Claim(ClaimTypes.Name, user.Username),
-            new Claim(ClaimTypes.Role, user.Role.Name)
+            new Claim(ClaimTypes.Role, user.Role?.Name ?? string.Empty)
         };
 
-        var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_config["ApiSettings:Secret"]));
+        var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_secretKey));
         var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
 
         var token = new JwtSecurityToken(
-            issuer: _config["ApiSettings:Issuer"],
-            audience: _config["ApiSettings:Audience"],
+            issuer: _issuer,
+            audience: _audience,
             claims: claims,
-            expires: DateTime.Now.AddMinutes(_accessTokenExpiryMinutes),
+            expires: expiresAt,
             signingCredentials: creds
         );
 
-        return new JwtSecurityTokenHandler().WriteToken(token);
+        return (new JwtSecurityTokenHandler().WriteToken(token), expiresAt);
     }
 }
