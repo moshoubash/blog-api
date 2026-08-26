@@ -22,13 +22,20 @@ public sealed class TagController(ApplicationDbContext dbContext) : ControllerBa
     public async Task<ActionResult<TaxonomyResponse>> CreateTag(TaxonomyRequest request, CancellationToken cancellationToken)
     {
         var slug = SlugService.Create(request.Name);
+        
         if (string.IsNullOrEmpty(slug) || await dbContext.Tags.AnyAsync(item => item.Slug == slug, cancellationToken))
         {
             return Conflict(new { message = "A tag with this name already exists." });
         }
-        var tag = new Tag { Name = request.Name.Trim(), Slug = slug };
+        
+        var tag = new Tag { 
+            Name = request.Name.Trim(), 
+            Slug = slug 
+        };
+        
         dbContext.Tags.Add(tag);
         await dbContext.SaveChangesAsync(cancellationToken);
+        
         return CreatedAtAction(nameof(GetTags), null, new TaxonomyResponse(tag.Id, tag.Name, tag.Slug));
     }
 }
