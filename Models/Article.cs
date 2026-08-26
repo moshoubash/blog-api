@@ -12,6 +12,9 @@ public class Article
     [Required, MaxLength(200)]
     public string Title { get; set; } = string.Empty;
     
+    [MaxLength(300)]
+    public string? Slug { get; private set; }
+    
     [Required]
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
     

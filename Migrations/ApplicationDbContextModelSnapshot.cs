@@ -33,6 +33,12 @@ namespace DotnetAPI.Migrations
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime(6)");
 
+                    b.Property<string>("Slug")
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasMaxLength(300)
+                        .HasColumnType("varchar(300)")
+                        .HasComputedColumnSql("LOWER(REPLACE(Title, ' ', '-'))", true);
+
                     b.Property<string>("Title")
                         .IsRequired()
                         .HasMaxLength(200)

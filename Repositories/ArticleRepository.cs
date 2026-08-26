@@ -16,6 +16,7 @@ public sealed class ArticleRepository(ApplicationDbContext dbContext) : IArticle
             .Select(article => new ArticleResponse(
                 article.Id,
                 article.Title,
+                article.Slug,
                 article.CreatedAt,
                 article.UserId,
                 article.User!.Name))
@@ -37,6 +38,7 @@ public sealed class ArticleRepository(ApplicationDbContext dbContext) : IArticle
             .Select(article => new ArticleResponse(
                 article.Id,
                 article.Title,
+                article.Slug,
                 article.CreatedAt,
                 article.UserId,
                 article.User!.Name))
@@ -66,7 +68,7 @@ public sealed class ArticleRepository(ApplicationDbContext dbContext) : IArticle
             .Select(user => user.Name)
             .SingleAsync(cancellationToken);
 
-        return new ArticleResponse(article.Id, article.Title, article.CreatedAt, userId, authorName);
+        return new ArticleResponse(article.Id, article.Title, article.Slug, article.CreatedAt, userId, authorName);
     }
 
     public async Task<ArticleResponse?> UpdateArticleAsync(
@@ -87,7 +89,7 @@ public sealed class ArticleRepository(ApplicationDbContext dbContext) : IArticle
         article.Title = request.Title.Trim();
         await dbContext.SaveChangesAsync(cancellationToken);
 
-        return new ArticleResponse(article.Id, article.Title, article.CreatedAt, article.UserId, article.User!.Name);
+        return new ArticleResponse(article.Id, article.Title, article.Slug, article.CreatedAt, article.UserId, article.User!.Name);
     }
 
     public async Task<bool> DeleteArticleAsync(int id, int userId, CancellationToken cancellationToken)

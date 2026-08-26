@@ -1,16 +1,12 @@
 using DotnetAPI.Models;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
 namespace DotnetAPI.Database;
 
-public class ApplicationDbContext : DbContext
+public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> dbContextOptions) : DbContext(dbContextOptions)
 {
-    public ApplicationDbContext(DbContextOptions<ApplicationDbContext> dbContextOptions) : base(dbContextOptions)
-    {
-        
-    }
-
     protected override void OnModelCreating(ModelBuilder builder)
     {
         base.OnModelCreating(builder);
@@ -32,6 +28,11 @@ public class ApplicationDbContext : DbContext
         builder.Entity<User>()
             .HasOne(u => u.Role)
             .WithMany(r => r.Users);
+        
+        // Generating a slug for the article title
+        builder.Entity<Article>()
+            .Property(a => a.Slug)
+            .HasComputedColumnSql("LOWER(REPLACE(Title, ' ', '-'))", stored: true);
         
         // SEEDING
         builder.Entity<Role>().HasData(
