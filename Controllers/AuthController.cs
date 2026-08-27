@@ -1,8 +1,11 @@
+using System.Security.Claims;
 using DotnetAPI.Database;
 using DotnetAPI.Dtos.Authentication;
+using DotnetAPI.Dtos.Authentication.RefreshToken;
 using DotnetAPI.Models;
 using DotnetAPI.Services;
 using DotnetAPI.Services.Tokens;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -33,7 +36,7 @@ public sealed class AuthController(
         var jwttokenService = tokenFactory.Create("jwt");
         var jwtToken = jwttokenService.GenerateToken(user);
         
-        var refreshtokenService = tokenFactory.Create("refreshToken");
+        var refreshtokenService = tokenFactory.Create("refreshtoken");
         var refreshToken = refreshtokenService.GenerateToken(user);
         
         return Ok(CreateResponse(user, jwtToken, refreshToken));
@@ -62,6 +65,45 @@ public sealed class AuthController(
 
         var token = tokenFactory.Create("jwt").GenerateToken(user);
         return Created("api/auth/me", CreateResponse(user, token));
+    }
+
+    [HttpPost("refresh")]
+    public async Task<IActionResult> RefreshToken([FromBody] RefreshTokenRequest request)
+    {
+        if (string.IsNullOrWhiteSpace(request.RefreshToken))
+        {
+            return BadRequest(new { message = "Refresh token is required" });
+        }
+
+        var result = await tokenFactory.RefreshAccessTokenAsync(request.RefreshToken);
+
+        if (!result.Success)
+        {
+            return Unauthorized(new { message = result.Error });
+        }
+
+        return Ok(new
+        {
+            accessToken = result.AccessToken,
+            refreshToken = result.RefreshToken,
+            expiresAt = result.RefreshTokenExpiry
+        });
+    }
+
+    [Authorize]
+    [HttpPost("revoke")]
+    public async Task<IActionResult> RevokeToken([FromBody] RevokeTokenRequest? request)
+    {
+        var userIdClaim = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)?.Value;
+
+        if (!int.TryParse(userIdClaim, out int userId))
+        {
+            return Unauthorized();
+        }
+
+        await tokenFactory.RevokeRefreshTokenAsync(userId, request?.RefreshToken);
+
+        return Ok(new { message = "Token revoked successfully" });
     }
 
     private bool VerifyPassword(User user, string password)
