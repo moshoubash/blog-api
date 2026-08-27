@@ -87,4 +87,5 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> dbConte
     public DbSet<ArticleCategory> ArticleCategories { get; set; }
     public DbSet<ArticleTag> ArticleTags { get; set; }
     public DbSet<Comment> Comments { get; set; }
+    public DbSet<RefreshToken> RefreshTokens { get; set; }
 }

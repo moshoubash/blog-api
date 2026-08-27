@@ -30,10 +30,13 @@ public sealed class AuthController(
             return Unauthorized(new { message = "Invalid username or password." });
         }
 
-        var tokenService = tokenFactory.Create("jwt");
-        var token = tokenService.GenerateToken(user);
-
-        return Ok(CreateResponse(user, token));
+        var jwttokenService = tokenFactory.Create("jwt");
+        var jwtToken = jwttokenService.GenerateToken(user);
+        
+        var refreshtokenService = tokenFactory.Create("refreshToken");
+        var refreshToken = refreshtokenService.GenerateToken(user);
+        
+        return Ok(CreateResponse(user, jwtToken, refreshToken));
     }
 
     [HttpPost("register")]
@@ -80,11 +83,15 @@ public sealed class AuthController(
         return false;
     }
 
-    private static AuthResponse CreateResponse(User user, (string Token, DateTime ExpiresAt) token) =>
-        new(token.Token, token.ExpiresAt, new UserResponse(
+    private static AuthResponse CreateResponse(User user, (string Token, DateTime ExpiresAt) jwtToken, (string Token, DateTime ExpiresAt) refreshToken = default) =>
+        new AuthResponse(
             user.Id,
             user.Name,
             user.Username,
-            user.Role?.Name ?? string.Empty,
-            user.CreatedAt));
+            user.Role,
+            JwtToken: jwtToken.Token,
+            JwtTokenExpiresAt: jwtToken.ExpiresAt,
+            RefreshToken: refreshToken.Token,
+            RefreshTokenExpiresAt: refreshToken.Token is not null ? refreshToken.ExpiresAt : null
+        );
 }

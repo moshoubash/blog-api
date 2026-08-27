@@ -1,5 +1,6 @@
 using System.ComponentModel.DataAnnotations.Schema;
 using System.ComponentModel.DataAnnotations;
+using System.Text.Json.Serialization;
 
 namespace DotnetAPI.Models;
 
@@ -12,5 +13,6 @@ public class Role
     [Required, MaxLength(50)]
     public string Name { get; set; } = string.Empty;
     
+    [JsonIgnore]
     public ICollection<User> Users { get; set; } = new List<User>();
 }

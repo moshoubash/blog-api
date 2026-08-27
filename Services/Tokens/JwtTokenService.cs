@@ -1,11 +1,14 @@
-namespace DotnetAPI.Services.Tokens;
-
+using DotnetAPI.Database;
+using Microsoft.EntityFrameworkCore;
 using DotnetAPI.Models;
-using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
+using System.Security.Cryptography;
+using DotnetAPI.Dtos.Authentication.RefreshToken;
+
+namespace DotnetAPI.Services.Tokens;
 
 public class JwtTokenService : ITokenService
 {
@@ -14,7 +17,7 @@ public class JwtTokenService : ITokenService
     private readonly string _audience;
     private readonly int _accessTokenExpiryMinutes;
 
-    public JwtTokenService(IConfiguration config)
+    public JwtTokenService(IConfiguration config, ApplicationDbContext context)
     {
         _secretKey = config["ApiSettings:Secret"] ?? throw new InvalidOperationException("ApiSettings:Secret is required.");
         _issuer = config["ApiSettings:Issuer"] ?? throw new InvalidOperationException("ApiSettings:Issuer is required.");
