@@ -170,3 +170,4 @@
 /Users/mohammadshoubash/RiderProjects/DotnetAPI/DotnetAPI/bin/Debug/net10.0/DotnetAPI.Tests/bin/Debug/net10.0/DotnetAPI.Tests/bin/Debug/net10.0/DotnetAPI.Tests/bin/Debug/net10.0/DotnetAPI.Tests/bin/Debug/net10.0/DotnetAPI.Tests.runtimeconfig.json
 /Users/mohammadshoubash/RiderProjects/DotnetAPI/DotnetAPI/bin/Debug/net10.0/DotnetAPI.Tests/bin/Debug/net10.0/DotnetAPI.Tests/bin/Debug/net10.0/DotnetAPI.Tests/bin/Debug/net10.0/DotnetAPI.Tests/bin/Debug/net10.0/DotnetAPI.Tests/obj/DotnetAPI.Tests.csproj.nuget.dgspec.json
 /Users/mohammadshoubash/RiderProjects/DotnetAPI/DotnetAPI/bin/Debug/net10.0/DotnetAPI.Tests/bin/Debug/net10.0/DotnetAPI.Tests/bin/Debug/net10.0/DotnetAPI.Tests/bin/Debug/net10.0/DotnetAPI.Tests/bin/Debug/net10.0/DotnetAPI.Tests/obj/project.assets.json
+/Users/mohammadshoubash/RiderProjects/DotnetAPI/DotnetAPI/obj/Debug/net10.0/DotnetAPI.sourcelink.json
