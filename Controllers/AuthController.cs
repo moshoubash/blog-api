@@ -2,6 +2,7 @@ using DotnetAPI.Database;
 using DotnetAPI.Dtos.Authentication;
 using DotnetAPI.Models;
 using DotnetAPI.Services;
+using DotnetAPI.Services.Tokens;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -13,7 +14,7 @@ namespace DotnetAPI.Controllers;
 [Route("api/auth")]
 [EnableRateLimiting("login")]
 public sealed class AuthController(
-    JwtTokenService jwtTokenService,
+    TokenServiceFactory tokenFactory,
     ApplicationDbContext dbContext,
     IPasswordHasher<User> passwordHasher) : ControllerBase
 {
@@ -29,7 +30,9 @@ public sealed class AuthController(
             return Unauthorized(new { message = "Invalid username or password." });
         }
 
-        var token = jwtTokenService.GenerateToken(user);
+        var tokenService = tokenFactory.Create("jwt");
+        var token = tokenService.GenerateToken(user);
+
         return Ok(CreateResponse(user, token));
     }
 
@@ -54,7 +57,7 @@ public sealed class AuthController(
         await dbContext.SaveChangesAsync(cancellationToken);
         await dbContext.Entry(user).Reference(item => item.Role).LoadAsync(cancellationToken);
 
-        var token = jwtTokenService.GenerateToken(user);
+        var token = tokenFactory.Create("jwt").GenerateToken(user);
         return Created("api/auth/me", CreateResponse(user, token));
     }
 

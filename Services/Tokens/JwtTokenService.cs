@@ -1,4 +1,4 @@
-namespace DotnetAPI.Services;
+namespace DotnetAPI.Services.Tokens;
 
 using DotnetAPI.Models;
 using Microsoft.Extensions.Configuration;
@@ -7,7 +7,7 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
 
-public class JwtTokenService
+public class JwtTokenService : ITokenService
 {
     private readonly string _secretKey;
     private readonly string _issuer;

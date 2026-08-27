@@ -6,6 +6,7 @@ using Scalar.AspNetCore;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using DotnetAPI.Services;
+using DotnetAPI.Services.Tokens;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.OpenApi;
@@ -116,7 +117,7 @@ builder.Services.AddAuthentication("Bearer")
 
 builder.Services.AddAuthorization();
 builder.Services.AddScoped<JwtTokenService>();
-
+builder.Services.AddScoped<TokenServiceFactory>();
 
 var app = builder.Build();
 
