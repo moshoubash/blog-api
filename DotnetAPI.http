@@ -1,22 +1,165 @@
 @DotnetAPI_HostAddress = http://localhost:5023
+# If running via Docker Compose / Docker, change port to 8080:
+# @DotnetAPI_HostAddress = http://localhost:8080
 
-###
-GET {{DotnetAPI_HostAddress}}/api/articles?page=1&pageSize=10
+@token = YOUR_JWT_TOKEN_HERE
+
+###############################################################################
+# OpenAPI & Scalar Documentation
+###############################################################################
+
+### Get OpenAPI v1 JSON specification
+GET {{DotnetAPI_HostAddress}}/openapi/v1.json
 Accept: application/json
 
+### Get Scalar UI Documentation
+GET {{DotnetAPI_HostAddress}}/scalar/v1
 
-###
-GET {{DotnetAPI_HostAddress}}/api/articles/1
+###############################################################################
+# Authentication Endpoints
+###############################################################################
+
+### Register a new author/user
+# @name register
+POST {{DotnetAPI_HostAddress}}/api/auth/register
+Content-Type: application/json
 Accept: application/json
 
-###
+{
+  "name": "John Doe",
+  "username": "johndoe",
+  "password": "Password123!"
+}
+
+### Login to receive JWT token
+# @name login
+POST {{DotnetAPI_HostAddress}}/api/auth/login
+Content-Type: application/json
+Accept: application/json
+
+{
+  "username": "johndoe",
+  "password": "Password123!"
+}
+
+###############################################################################
+# User Profile Endpoints
+###############################################################################
+
+### Get current authenticated user profile
+GET {{DotnetAPI_HostAddress}}/api/users/me
+Authorization: Bearer {{token}}
+Accept: application/json
+
+### Get current user's articles (published and drafts)
+GET {{DotnetAPI_HostAddress}}/api/users/me/articles
+Authorization: Bearer {{token}}
+Accept: application/json
+
+###############################################################################
+# Category Endpoints
+###############################################################################
+
+### Get all categories
 GET {{DotnetAPI_HostAddress}}/api/categories
 Accept: application/json
 
-###
+### Create a new category (Requires Author Role)
+POST {{DotnetAPI_HostAddress}}/api/categories
+Authorization: Bearer {{token}}
+Content-Type: application/json
+Accept: application/json
+
+{
+  "name": "Software Engineering"
+}
+
+###############################################################################
+# Tag Endpoints
+###############################################################################
+
+### Get all tags
 GET {{DotnetAPI_HostAddress}}/api/tags
 Accept: application/json
 
-###
+### Create a new tag (Requires Author Role)
+POST {{DotnetAPI_HostAddress}}/api/tags
+Authorization: Bearer {{token}}
+Content-Type: application/json
+Accept: application/json
+
+{
+  "name": "Dotnet 10"
+}
+
+###############################################################################
+# Article Endpoints
+###############################################################################
+
+### Get paginated list of published articles (with optional query filters)
+GET {{DotnetAPI_HostAddress}}/api/articles?page=1&pageSize=10&search=&category=&tag=
+Accept: application/json
+
+### Get single article by ID
+GET {{DotnetAPI_HostAddress}}/api/articles/1
+Accept: application/json
+
+### Get single article by Slug
+GET {{DotnetAPI_HostAddress}}/api/articles/slug/getting-started-with-dotnet-10
+Accept: application/json
+
+### Create a new article (Requires Author Role)
+POST {{DotnetAPI_HostAddress}}/api/articles
+Authorization: Bearer {{token}}
+Content-Type: application/json
+Accept: application/json
+
+{
+  "title": "Getting Started with .NET 10",
+  "content": "This is a comprehensive guide to building high performance APIs with .NET 10 and ASP.NET Core.",
+  "excerpt": "A quick overview of what is new in .NET 10.",
+  "isPublished": true,
+  "categoryIds": [1],
+  "tagIds": [1]
+}
+
+### Update an existing article (Requires Author Role and Ownership)
+PUT {{DotnetAPI_HostAddress}}/api/articles/1
+Authorization: Bearer {{token}}
+Content-Type: application/json
+Accept: application/json
+
+{
+  "title": "Getting Started with .NET 10 (Updated)",
+  "content": "Updated content explaining .NET 10 architecture in depth.",
+  "excerpt": "Updated summary of the article.",
+  "isPublished": true,
+  "categoryIds": [1],
+  "tagIds": [1]
+}
+
+### Delete an article by ID (Requires Author Role and Ownership)
+DELETE {{DotnetAPI_HostAddress}}/api/articles/1
+Authorization: Bearer {{token}}
+
+###############################################################################
+# Comments Endpoints
+###############################################################################
+
+### Get approved comments for an article
 GET {{DotnetAPI_HostAddress}}/api/articles/1/comments
 Accept: application/json
+
+### Post a comment to an article (Requires Authentication)
+POST {{DotnetAPI_HostAddress}}/api/articles/1/comments
+Authorization: Bearer {{token}}
+Content-Type: application/json
+Accept: application/json
+
+{
+  "content": "Great article! Very informative."
+}
+
+### Delete a comment (Requires Authentication and Ownership)
+DELETE {{DotnetAPI_HostAddress}}/api/articles/1/comments/1
+Authorization: Bearer {{token}}
