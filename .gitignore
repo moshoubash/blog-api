@@ -1,0 +1,41 @@
+# Build output
+[Bb]in/
+[Oo]bj/
+
+# Visual Studio, Rider, and VS Code user files
+.vs/
+.idea/
+.vscode/
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+
+# Local environment and secrets
+.env
+.env.*
+!.env.example
+appsettings*.json
+!appsettings.example.json
+secrets.json
+secrets.*.json
+
+# Local databases and runtime files
+*.db
+*.db-shm
+*.db-wal
+*.sqlite
+*.sqlite3
+logs/
+*.log
+.DS_Store
+
+# Test results and coverage
+[Tt]est[Rr]esult*/
+coverage/
+*.trx
+
+# Temporary files
+*.tmp
+*.temp
+*.bak

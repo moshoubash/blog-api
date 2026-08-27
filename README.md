@@ -38,6 +38,7 @@ A robust, production-grade RESTful Web API built with **ASP.NET Core (.NET 10)**
 ## 🛠 Tech Stack & Prerequisites
 
 ### Technologies
+
 - **Runtime & Framework**: [.NET 10.0](https://dotnet.microsoft.com/download) (C# 14) / ASP.NET Core Web API
 - **Database**: MySQL 8.0+ / MariaDB
 - **ORM**: Entity Framework Core 9.0 (`Pomelo.EntityFrameworkCore.MySql`)
@@ -47,20 +48,28 @@ A robust, production-grade RESTful Web API built with **ASP.NET Core (.NET 10)**
 - **Containerization**: Docker & Docker Compose
 
 ### Prerequisites
+
 Before getting started, make sure you have the following installed:
+
 1. [.NET 10.0 SDK](https://dotnet.microsoft.com/download/dotnet/10.0)
 2. [MySQL Server](https://dev.mysql.com/downloads/) (or run MySQL via Docker)
 3. [EF Core CLI Tools](https://learn.microsoft.com/en-us/ef/core/cli/dotnet) (recommended for running migrations):
    ```bash
    dotnet tool install --global dotnet-ef
    ```
-4. [Docker & Docker Compose](https://www.docker.com/) *(optional, for containerized execution)*
+4. [Docker & Docker Compose](https://www.docker.com/) _(optional, for containerized execution)_
 
 ---
 
 ## ⚙️ Configuration
 
-Application settings are located in [`appsettings.json`](file:///Users/mohammadshoubash/RiderProjects/DotnetAPI/DotnetAPI/appsettings.json) and [`appsettings.Development.json`](file:///Users/mohammadshoubash/RiderProjects/DotnetAPI/DotnetAPI/appsettings.Development.json).
+Local application settings are stored in `appsettings.json` and `appsettings.Development.json`. These files are intentionally ignored by Git because they contain database credentials and signing secrets.
+
+For a new checkout, copy the safe template and replace every placeholder with local values:
+
+```bash
+cp appsettings.example.json appsettings.json
+```
 
 ```json
 {
@@ -81,16 +90,13 @@ Application settings are located in [`appsettings.json`](file:///Users/mohammads
     "AccessTokenExpiryMinutes": 60
   },
   "Frontend": {
-    "AllowedOrigins": [
-      "http://localhost:5173",
-      "http://localhost:3000"
-    ]
+    "AllowedOrigins": ["http://localhost:5173", "http://localhost:3000"]
   }
 }
 ```
 
 > [!IMPORTANT]
-> Make sure to update `ConnectionStrings:DefaultConnection` with your actual MySQL database credentials and `ApiSettings:Secret` with a strong cryptographic secret key (at least 32 characters / 256 bits).
+> Never commit real passwords, JWT secrets, API keys, or other sensitive values. Use a strong unique value for `ApiSettings:Secret` (at least 32 characters / 256 bits). Any credentials that were previously committed must be rotated, even after the files are removed from tracking.
 
 ---
 
@@ -99,13 +105,17 @@ Application settings are located in [`appsettings.json`](file:///Users/mohammads
 The project uses Entity Framework Core with code-first migrations.
 
 ### 1. Apply Migrations to Database
+
 Apply all pending migrations to create and update your database schema:
+
 ```bash
 dotnet ef database update
 ```
 
 ### 2. Adding New Migrations (Optional)
+
 If you modify or add any entity models:
+
 ```bash
 dotnet ef migrations add <MigrationName>
 ```
@@ -115,17 +125,20 @@ dotnet ef migrations add <MigrationName>
 ## 🚀 Running the Project Locally
 
 ### 1. Restore and Build
+
 ```bash
 dotnet restore
 dotnet build
 ```
 
 ### 2. Run the Application
+
 ```bash
 dotnet run --launch-profile http
 ```
 
 The API will start at:
+
 - **Base URL**: `http://localhost:5023`
 - **Scalar API UI**: `http://localhost:5023/scalar/v1`
 - **OpenAPI Schema**: `http://localhost:5023/openapi/v1.json`
@@ -137,14 +150,18 @@ The API will start at:
 You can easily build and run the API inside a Docker container:
 
 ### Using Docker Compose
+
 ```bash
 docker compose up --build
 ```
+
 The containerized service will be exposed at:
+
 - **API URL**: `http://localhost:8080`
 - **Scalar UI**: `http://localhost:8080/scalar/v1`
 
 ### Standalone Docker Build & Run
+
 ```bash
 # Build the Docker image
 docker build -t dotnet-api .
@@ -163,6 +180,7 @@ When running in `Development` mode, interactive API documentation is enabled:
 - **OpenAPI v1 Spec**: Access the JSON schema at [`http://localhost:5023/openapi/v1.json`](http://localhost:5023/openapi/v1.json).
 
 ### Authorizing in Scalar
+
 1. Register/Login via `/api/auth/login` to obtain your JWT token.
 2. Click the **Authorize / Bearer** button in the Scalar interface.
 3. Paste the token without the `Bearer ` prefix (Scalar attaches the scheme automatically).
@@ -172,48 +190,54 @@ When running in `Development` mode, interactive API documentation is enabled:
 ## 🔌 API Endpoints Reference
 
 ### 🔐 Authentication (`/api/auth`)
-| Method | Endpoint | Auth Required | Description |
-|---|---|---|---|
-| `POST` | `/api/auth/register` | No | Register a new user (`name`, `username`, `password`) |
-| `POST` | `/api/auth/login` | No *(Rate Limited: 5/min)* | Authenticate user and return JWT token |
+
+| Method | Endpoint             | Auth Required              | Description                                          |
+| ------ | -------------------- | -------------------------- | ---------------------------------------------------- |
+| `POST` | `/api/auth/register` | No                         | Register a new user (`name`, `username`, `password`) |
+| `POST` | `/api/auth/login`    | No _(Rate Limited: 5/min)_ | Authenticate user and return JWT token               |
 
 ### 👤 Users (`/api/users`)
-| Method | Endpoint | Auth Required | Description |
-|---|---|---|---|
-| `GET` | `/api/users/me` | Bearer | Get the current authenticated user profile & roles |
-| `GET` | `/api/users/me/articles` | Bearer | Get all articles written by the current user |
+
+| Method | Endpoint                 | Auth Required | Description                                        |
+| ------ | ------------------------ | ------------- | -------------------------------------------------- |
+| `GET`  | `/api/users/me`          | Bearer        | Get the current authenticated user profile & roles |
+| `GET`  | `/api/users/me/articles` | Bearer        | Get all articles written by the current user       |
 
 ### 📝 Articles (`/api/articles`)
-| Method | Endpoint | Auth Required | Description |
-|---|---|---|---|
-| `GET` | `/api/articles` | No | List published articles (supports `page`, `pageSize`, `search`, `category`, `tag`) |
-| `GET` | `/api/articles/{id}` | No | Get single article by ID |
-| `GET` | `/api/articles/slug/{slug}` | No | Get single article by Slug |
-| `POST` | `/api/articles` | Bearer (Author) | Create a new article |
-| `PUT` | `/api/articles/{id}` | Bearer (Author & Owner) | Update an existing article |
-| `DELETE` | `/api/articles/{id}` | Bearer (Author & Owner) | Delete an article |
+
+| Method   | Endpoint                    | Auth Required           | Description                                                                        |
+| -------- | --------------------------- | ----------------------- | ---------------------------------------------------------------------------------- |
+| `GET`    | `/api/articles`             | No                      | List published articles (supports `page`, `pageSize`, `search`, `category`, `tag`) |
+| `GET`    | `/api/articles/{id}`        | No                      | Get single article by ID                                                           |
+| `GET`    | `/api/articles/slug/{slug}` | No                      | Get single article by Slug                                                         |
+| `POST`   | `/api/articles`             | Bearer (Author)         | Create a new article                                                               |
+| `PUT`    | `/api/articles/{id}`        | Bearer (Author & Owner) | Update an existing article                                                         |
+| `DELETE` | `/api/articles/{id}`        | Bearer (Author & Owner) | Delete an article                                                                  |
 
 ### 🏷 Categories (`/api/categories`)
-| Method | Endpoint | Auth Required | Description |
-|---|---|---|---|
-| `GET` | `/api/categories` | No | Get all categories |
+
+| Method | Endpoint          | Auth Required   | Description           |
+| ------ | ----------------- | --------------- | --------------------- |
+| `GET`  | `/api/categories` | No              | Get all categories    |
 | `POST` | `/api/categories` | Bearer (Author) | Create a new category |
 
 ### 📌 Tags (`/api/tags`)
-| Method | Endpoint | Auth Required | Description |
-|---|---|---|---|
-| `GET` | `/api/tags` | No | Get all tags |
+
+| Method | Endpoint    | Auth Required   | Description      |
+| ------ | ----------- | --------------- | ---------------- |
+| `GET`  | `/api/tags` | No              | Get all tags     |
 | `POST` | `/api/tags` | Bearer (Author) | Create a new tag |
 
 ### 💬 Comments (`/api/articles/{articleId}/comments`)
-| Method | Endpoint | Auth Required | Description |
-|---|---|---|---|
-| `GET` | `/api/articles/{articleId}/comments` | No | Get all approved comments for an article |
-| `POST` | `/api/articles/{articleId}/comments` | Bearer | Post a new comment |
-| `DELETE` | `/api/articles/{articleId}/comments/{id}` | Bearer (Owner) | Delete a comment |
+
+| Method   | Endpoint                                  | Auth Required  | Description                              |
+| -------- | ----------------------------------------- | -------------- | ---------------------------------------- |
+| `GET`    | `/api/articles/{articleId}/comments`      | No             | Get all approved comments for an article |
+| `POST`   | `/api/articles/{articleId}/comments`      | Bearer         | Post a new comment                       |
+| `DELETE` | `/api/articles/{articleId}/comments/{id}` | Bearer (Owner) | Delete a comment                         |
 
 > [!TIP]
-> You can also use the included [`DotnetAPI.http`](file:///Users/mohammadshoubash/RiderProjects/DotnetAPI/DotnetAPI/DotnetAPI.http) file in Rider or VS Code (with the REST Client extension) to test all endpoints interactively.
+> You can also use the included [`DotnetAPI.http`](DotnetAPI.http) file in Rider or VS Code (with the REST Client extension) to test all endpoints interactively.
 
 ---
 
