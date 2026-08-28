@@ -65,7 +65,7 @@ namespace DotnetAPI.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("Articles");
+                    b.ToTable("Articles", (string)null);
 
                     b.HasData(
                         new
@@ -112,7 +112,7 @@ namespace DotnetAPI.Migrations
 
                     b.HasIndex("CategoryId");
 
-                    b.ToTable("ArticleCategories");
+                    b.ToTable("ArticleCategories", (string)null);
                 });
 
             modelBuilder.Entity("DotnetAPI.Models.ArticleTag", b =>
@@ -127,7 +127,7 @@ namespace DotnetAPI.Migrations
 
                     b.HasIndex("TagId");
 
-                    b.ToTable("ArticleTags");
+                    b.ToTable("ArticleTags", (string)null);
                 });
 
             modelBuilder.Entity("DotnetAPI.Models.Category", b =>
@@ -153,7 +153,7 @@ namespace DotnetAPI.Migrations
                     b.HasIndex("Slug")
                         .IsUnique();
 
-                    b.ToTable("Categories");
+                    b.ToTable("Categories", (string)null);
                 });
 
             modelBuilder.Entity("DotnetAPI.Models.Comment", b =>
@@ -187,7 +187,7 @@ namespace DotnetAPI.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("Comments");
+                    b.ToTable("Comments", (string)null);
                 });
 
             modelBuilder.Entity("DotnetAPI.Models.RefreshToken", b =>
@@ -218,7 +218,7 @@ namespace DotnetAPI.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("RefreshTokens");
+                    b.ToTable("RefreshTokens", (string)null);
                 });
 
             modelBuilder.Entity("DotnetAPI.Models.Role", b =>
@@ -236,7 +236,7 @@ namespace DotnetAPI.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Roles");
+                    b.ToTable("Roles", (string)null);
 
                     b.HasData(
                         new
@@ -269,7 +269,7 @@ namespace DotnetAPI.Migrations
                     b.HasIndex("Slug")
                         .IsUnique();
 
-                    b.ToTable("Tags");
+                    b.ToTable("Tags", (string)null);
                 });
 
             modelBuilder.Entity("DotnetAPI.Models.User", b =>
@@ -305,7 +305,7 @@ namespace DotnetAPI.Migrations
 
                     b.HasIndex("RoleId");
 
-                    b.ToTable("Users");
+                    b.ToTable("Users", (string)null);
 
                     b.HasData(
                         new
