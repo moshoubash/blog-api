@@ -24,7 +24,7 @@ public sealed class CategoryController(ApplicationDbContext dbContext) : Control
         var slug = SlugService.Create(request.Name);
         if (string.IsNullOrEmpty(slug) || await dbContext.Categories.AnyAsync(item => item.Slug == slug, cancellationToken))
         {
-            return Conflict(new { message = "A category with this name already exists." });
+            return Problem(statusCode: StatusCodes.Status409Conflict, detail: "A category with this name already exists.");
         }
         var category = new Category { Name = request.Name.Trim(), Slug = slug };
         dbContext.Categories.Add(category);

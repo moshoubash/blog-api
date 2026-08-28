@@ -57,7 +57,7 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> dbConte
         
         // SEEDING
         builder.Entity<Role>().HasData(
-            new Role { Id = 1, Name = "Author" }
+            new Role { Id = Role.AuthorId, Name = Role.Author }
         );
         
         builder.Entity<User>().HasData(
@@ -67,7 +67,7 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> dbConte
                 Name = "Author",
                 Username = "author",
                 Password = "12341234",
-                RoleId = 1,
+                RoleId = Role.AuthorId,
                 CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, DateTimeKind.Utc)
             }
         );

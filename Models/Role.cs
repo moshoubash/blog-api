@@ -6,6 +6,9 @@ namespace DotnetAPI.Models;
 
 public class Role
 {
+    public const int AuthorId = 1;
+    public const string Author = "Author";
+
     [Key]
     [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
     public int Id { get; set; }

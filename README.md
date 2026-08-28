@@ -21,10 +21,12 @@ A robust, production-grade RESTful Web API built with **ASP.NET Core (.NET 10)**
 
 ## ✨ Features
 
-- **JWT Authentication & Role-Based Authorization**: Secure user registration and login with password hashing via ASP.NET Identity `IPasswordHasher` and role claims (`Author`, `Admin`).
+- **JWT Authentication & Refresh Tokens**: Secure user registration, login, token refresh rotation, and revocation with password hashing via ASP.NET Identity `IPasswordHasher` and role claims (`Author`, `Admin`).
+- **Standardized Error Handling**: RFC 7807 `ProblemDetails` format for consistent API error responses.
 - **Article & Content Management**: Full CRUD operations for Articles, Categories, Tags, and Comments with pagination and search/filter support.
 - **Automated Slug Generation**: Dynamic URL-friendly slug generation and retrieval for SEO-friendly URLs.
 - **Repository Pattern**: Clean separation of database persistence using `IArticleRepository` and `ArticleRepository`.
+- **Strongly-Typed Options**: Centralized `ApiSettings` configured via ASP.NET Core Options pattern (`IOptions<ApiSettings>`).
 - **Rate Limiting**: Built-in fixed-window rate limiters:
   - `api`: 60 requests per minute.
   - `login`: 5 requests per minute for brute-force protection.
@@ -87,7 +89,8 @@ cp appsettings.example.json appsettings.json
     "Secret": "YourSuperSecretKeyMustBeAtLeast32CharactersLong!",
     "Issuer": "localhost:5023",
     "Audience": "localhost:5023",
-    "AccessTokenExpiryMinutes": 60
+    "AccessTokenExpiryMinutes": 60,
+    "RefreshTokenExpiryDays": 15
   },
   "Frontend": {
     "AllowedOrigins": ["http://localhost:5173", "http://localhost:3000"]
@@ -194,7 +197,9 @@ When running in `Development` mode, interactive API documentation is enabled:
 | Method | Endpoint             | Auth Required              | Description                                          |
 | ------ | -------------------- | -------------------------- | ---------------------------------------------------- |
 | `POST` | `/api/auth/register` | No                         | Register a new user (`name`, `username`, `password`) |
-| `POST` | `/api/auth/login`    | No _(Rate Limited: 5/min)_ | Authenticate user and return JWT token               |
+| `POST` | `/api/auth/login`    | No _(Rate Limited: 5/min)_ | Authenticate user and return JWT & Refresh tokens    |
+| `POST` | `/api/auth/refresh`  | No                         | Refresh access token via refresh token rotation      |
+| `POST` | `/api/auth/revoke`   | Bearer                     | Revoke active refresh token(s)                       |
 
 ### 👤 Users (`/api/users`)
 
@@ -259,9 +264,10 @@ DotnetAPI/
 ├── Database/                 # EF Core DbContext & model configurations
 ├── Dtos/                     # Data Transfer Objects (Article, Authentication, Blog, Common)
 ├── Migrations/               # EF Core database migrations
-├── Models/                   # Entity domain models (Article, User, Role, Category, Tag, Comment)
+├── Models/                   # Entity domain models & settings (Article, User, Role, RefreshToken, ApiSettings)
 ├── Repositories/             # Data access abstractions & repository implementations
-├── Services/                 # Business logic services (JwtTokenService, SlugService)
+├── Services/                 # Business logic & Token services (JwtTokenService, RefreshTokenService, Factory, SlugService)
+│   └── Tokens/               # Token management & factory implementations
 ├── Properties/               # launchSettings.json configuration
 ├── DotnetAPI.Tests/          # Unit tests project (xUnit)
 ├── DotnetAPI.http            # HTTP request scratchpad for manual testing

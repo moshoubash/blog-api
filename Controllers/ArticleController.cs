@@ -62,7 +62,7 @@ public sealed class ArticleController(IArticleRepository articleRepository) : Co
         }
         catch (ArgumentException exception)
         {
-            return BadRequest(new { message = exception.Message });
+            return Problem(statusCode: StatusCodes.Status400BadRequest, detail: exception.Message);
         }
     }
 
@@ -84,7 +84,7 @@ public sealed class ArticleController(IArticleRepository articleRepository) : Co
         }
         catch (ArgumentException exception)
         {
-            return BadRequest(new { message = exception.Message });
+            return Problem(statusCode: StatusCodes.Status400BadRequest, detail: exception.Message);
         }
     }
 

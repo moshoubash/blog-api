@@ -25,7 +25,7 @@ public sealed class TagController(ApplicationDbContext dbContext) : ControllerBa
         
         if (string.IsNullOrEmpty(slug) || await dbContext.Tags.AnyAsync(item => item.Slug == slug, cancellationToken))
         {
-            return Conflict(new { message = "A tag with this name already exists." });
+            return Problem(statusCode: StatusCodes.Status409Conflict, detail: "A tag with this name already exists.");
         }
         
         var tag = new Tag { 

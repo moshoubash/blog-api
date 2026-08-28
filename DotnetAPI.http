@@ -31,7 +31,7 @@ Accept: application/json
   "password": "Password123!"
 }
 
-### Login to receive JWT token
+### Login to receive JWT and Refresh tokens
 # @name login
 POST {{DotnetAPI_HostAddress}}/api/auth/login
 Content-Type: application/json
@@ -40,6 +40,27 @@ Accept: application/json
 {
   "username": "johndoe",
   "password": "Password123!"
+}
+
+### Refresh Access Token using Refresh Token
+# @name refresh
+POST {{DotnetAPI_HostAddress}}/api/auth/refresh
+Content-Type: application/json
+Accept: application/json
+
+{
+  "refreshToken": "YOUR_REFRESH_TOKEN_HERE"
+}
+
+### Revoke Refresh Token
+# @name revoke
+POST {{DotnetAPI_HostAddress}}/api/auth/revoke
+Authorization: Bearer {{token}}
+Content-Type: application/json
+Accept: application/json
+
+{
+  "refreshToken": "YOUR_REFRESH_TOKEN_HERE"
 }
 
 ###############################################################################

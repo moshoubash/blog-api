@@ -1,4 +1,3 @@
-using DotnetAPI.Database;
 using Microsoft.EntityFrameworkCore;
 using DotnetAPI.Models;
 using Microsoft.IdentityModel.Tokens;
@@ -7,6 +6,7 @@ using System.Security.Claims;
 using System.Text;
 using System.Security.Cryptography;
 using DotnetAPI.Dtos.Authentication.RefreshToken;
+using Microsoft.Extensions.Options;
 
 namespace DotnetAPI.Services.Tokens;
 
@@ -17,12 +17,12 @@ public class JwtTokenService : ITokenService
     private readonly string _audience;
     private readonly int _accessTokenExpiryMinutes;
 
-    public JwtTokenService(IConfiguration config, ApplicationDbContext context)
+    public JwtTokenService(IOptions<ApiSettings> configOptions)
     {
-        _secretKey = config["ApiSettings:Secret"] ?? throw new InvalidOperationException("ApiSettings:Secret is required.");
-        _issuer = config["ApiSettings:Issuer"] ?? throw new InvalidOperationException("ApiSettings:Issuer is required.");
-        _audience = config["ApiSettings:Audience"] ?? throw new InvalidOperationException("ApiSettings:Audience is required.");
-        _accessTokenExpiryMinutes = config.GetValue<int>("ApiSettings:AccessTokenExpiryMinutes", 60);
+        _secretKey = configOptions.Value.Secret ?? throw new InvalidOperationException("ApiSettings:Secret is required.");
+        _issuer = configOptions.Value.Issuer ?? throw new InvalidOperationException("ApiSettings:Issuer is required.");
+        _audience = configOptions.Value.Audience ?? throw new InvalidOperationException("ApiSettings:Audience is required.");
+        _accessTokenExpiryMinutes = configOptions.Value.AccessTokenExpiryMinutes > 0 ? configOptions.Value.AccessTokenExpiryMinutes : 60;
     }
 
     public (string Token, DateTime ExpiresAt) GenerateToken(User user)

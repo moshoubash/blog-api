@@ -10,6 +10,7 @@ using DotnetAPI.Services.Tokens;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.OpenApi;
+using DotnetAPI.Models;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -119,6 +120,8 @@ builder.Services.AddAuthorization();
 builder.Services.AddScoped<JwtTokenService>();
 builder.Services.AddScoped<RefreshTokenService>();
 builder.Services.AddScoped<TokenServiceFactory>();
+builder.Services.Configure<ApiSettings>(builder.Configuration.GetSection("ApiSettings"));
+builder.Services.AddProblemDetails();
 
 var app = builder.Build();
 

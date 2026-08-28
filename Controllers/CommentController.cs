@@ -30,7 +30,7 @@ public sealed class CommentController(ApplicationDbContext dbContext) : Controll
         var articleExists = await dbContext.Articles.AnyAsync(article => article.Id == articleId && article.IsPublished, cancellationToken);
         if (!articleExists)
         {
-            return NotFound(new { message = "Article not found." });
+            return Problem(statusCode: StatusCodes.Status404NotFound, detail: "Article not found.");
         }
 
         var userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
@@ -49,7 +49,7 @@ public sealed class CommentController(ApplicationDbContext dbContext) : Controll
         var comment = await dbContext.Comments.SingleOrDefaultAsync(item => item.Id == commentId && item.ArticleId == articleId && item.UserId == userId, cancellationToken);
         if (comment is null)
         {
-            return NotFound(new { message = "Comment not found." });
+            return Problem(statusCode: StatusCodes.Status404NotFound, detail: "Comment not found or is not owned by the current user.");
         }
         dbContext.Comments.Remove(comment);
         await dbContext.SaveChangesAsync(cancellationToken);

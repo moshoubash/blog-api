@@ -3,6 +3,7 @@ using DotnetAPI.Dtos.Authentication.RefreshToken;
 using System.Security.Cryptography;
 using DotnetAPI.Database;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Options;
 
 namespace DotnetAPI.Services.Tokens;
 
@@ -12,9 +13,9 @@ public class RefreshTokenService : ITokenService
     private readonly ApplicationDbContext _context;
     private readonly JwtTokenService _jwtTokenService;
     
-    public RefreshTokenService(IConfiguration config, ApplicationDbContext context, JwtTokenService jwtTokenService)
+    public RefreshTokenService(IOptions<ApiSettings> configOptions, ApplicationDbContext context, JwtTokenService jwtTokenService)
     {
-        _refreshTokenExpiryDays = config.GetValue<int>("ApiSettings:RefreshTokenExpiryDays", 7);
+        _refreshTokenExpiryDays = configOptions.Value.RefreshTokenExpiryDays > 0 ? configOptions.Value.RefreshTokenExpiryDays : 15;
         _context = context;
         _jwtTokenService = jwtTokenService;
     }

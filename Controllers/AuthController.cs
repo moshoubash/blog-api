@@ -30,7 +30,7 @@ public sealed class AuthController(
 
         if (user is null || !VerifyPassword(user, request.Password))
         {
-            return Unauthorized(new { message = "Invalid username or password." });
+            return Problem(statusCode: StatusCodes.Status401Unauthorized, detail: "Invalid username or password.");
         }
 
         var jwttokenService = tokenFactory.Create("jwt");
@@ -48,14 +48,14 @@ public sealed class AuthController(
         var username = request.Username.Trim();
         if (await dbContext.Users.AnyAsync(user => user.Username == username, cancellationToken))
         {
-            return Conflict(new { message = "Username is already in use." });
+            return Problem(statusCode: StatusCodes.Status409Conflict, detail: "Username is already in use.");
         }
 
         var user = new User
         {
             Name = request.Name.Trim(),
             Username = username,
-            RoleId = 1
+            RoleId = Role.AuthorId
         };
         user.Password = passwordHasher.HashPassword(user, request.Password);
 
@@ -72,14 +72,14 @@ public sealed class AuthController(
     {
         if (string.IsNullOrWhiteSpace(request.RefreshToken))
         {
-            return BadRequest(new { message = "Refresh token is required" });
+            return Problem(statusCode: StatusCodes.Status400BadRequest, detail: "Refresh token is required.");
         }
 
         var result = await tokenFactory.RefreshAccessTokenAsync(request.RefreshToken);
 
         if (!result.Success)
         {
-            return Unauthorized(new { message = result.Error });
+            return Problem(statusCode: StatusCodes.Status401Unauthorized, detail: result.Error ?? "Invalid refresh token.");
         }
 
         return Ok(new
@@ -98,7 +98,7 @@ public sealed class AuthController(
 
         if (!int.TryParse(userIdClaim, out int userId))
         {
-            return Unauthorized();
+            return Problem(statusCode: StatusCodes.Status401Unauthorized, detail: "Unauthorized.");
         }
 
         await tokenFactory.RevokeRefreshTokenAsync(userId, request?.RefreshToken);
