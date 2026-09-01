@@ -63,8 +63,13 @@ public sealed class AuthController(
         await dbContext.SaveChangesAsync(cancellationToken);
         await dbContext.Entry(user).Reference(item => item.Role).LoadAsync(cancellationToken);
 
-        var token = tokenFactory.Create("jwt").GenerateToken(user);
-        return Created("api/auth/me", CreateResponse(user, token));
+        var jwttokenService = tokenFactory.Create("jwt");
+        var jwtToken = jwttokenService.GenerateToken(user);
+        
+        var refreshtokenService = tokenFactory.Create("refreshtoken");
+        var refreshToken = refreshtokenService.GenerateToken(user);
+
+        return Created("api/auth/me", CreateResponse(user, jwtToken, refreshToken));
     }
 
     [HttpPost("refresh")]
